@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  openId String? @unique
+  name String? @db.VarChar(20)
+  emails String? @unique
+  phone String? @unique
+  userNo String?
+  password String?
+  role Role? @relation(fields: [roleId], references: [id])
+  roleId Int?
+  hasBind Boolean @default(false)
+  avatarUrl String?
+  universityId Int
+  university University @relation(fields: [universityId], references: [id])
+  collegeId Int
+  college College @relation(fields: [collegeId], references: [id])
+  students Student[]
+  teachers Teacher[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+  @@unique([userNo, universityId])
+}
+
+model Role {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(10)
+  users User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model Student {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  user User @relation(fields: [userId], references: [id])
+  specialtyId Int
+  specialty Specialty @relation(fields: [specialtyId], references: [id])
+  classId Int
+  class Class @relation(fields: [classId], references: [id])
+  dormitory String
+  relatedTeaId Int
+  relatedTea Teacher @relation(fields: [relatedTeaId], references: [id])
+  hasSubscribed Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model Teacher {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  user User @relation(fields: [userId], references: [id])
+  office String
+  relatedStus Student[]
+  notice Notice[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model University {
+  id Int @id @default(autoincrement())
+  name String
+  users User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model College {
+  id Int @id @default(autoincrement())
+  name String
+  users User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model Specialty {
+  id Int @id @default(autoincrement())
+  name String
+  students Student[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model Class {
+  id Int @id @default(autoincrement())
+  name String
+  students Student[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model Notice {
+  id Int @id @default(autoincrement())
+  releaseTime	String
+  name String
+  content String?
+  tags String?
+  images String?
+  addressId Int?
+  address Address? @relation(fields: [addressId], references: [id])
+  startTime String?
+  endTime String?
+  recipent Int
+  type Int
+  announcerId Int
+  announcer Teacher @relation(fields: [announcerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model Address {
+  id Int @id @default(autoincrement())
+  name String
+  latitude Float
+  longitude Float
+  notice Notice[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+// model tourist {
+//   id Int @id @default(autoincrement())
+//   openId String @unique
+//   userNo String?
+//   universityId Int?
+//   name String?
+//   roleId Int?
+// }
